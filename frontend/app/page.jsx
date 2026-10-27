@@ -27,105 +27,42 @@ import {
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  provider?: string;
-  timestamp: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  brand: string;
-  category: string;
-  target_skin_types: string[];
-  key_actives: string[];
-  description: string;
-  price: string | number;
-  rating: number;
-  image_url: string;
-}
-
-interface RoutineStep {
-  id: number;
-  order: number;
-  step_name: string;
-  product_details?: Product;
-  notes: string;
-  is_completed: boolean;
-}
-
-interface Routine {
-  id: number;
-  title: string;
-  time_of_day: string;
-  target_goal: string;
-  steps: RoutineStep[];
-}
-
-interface ScanResult {
-  id?: number;
-  detected_skin_type: string;
-  overall_score: number;
-  hydration_score: number;
-  redness_score: number;
-  blemish_score: number;
-  texture_score: number;
-  detected_concerns: string[];
-  ai_recommendations: string[];
-  notes?: string;
-  created_at?: string;
-}
-
-interface ConflictResult {
-  ingredient_a: string;
-  ingredient_b: string;
-  severity: "warning" | "danger";
-  reason: string;
-  suggestion: string;
-}
-
 export default function SkincareApp() {
-  const [activeTab, setActiveTab] = useState<"scan" | "routine" | "conflicts" | "products" | "diary" | "coach">("scan");
+  const [activeTab, setActiveTab] = useState("scan");
 
   // State
-  const [products, setProducts] = useState<Product[]>([]);
-  const [routines, setRoutines] = useState<Routine[]>([]);
-  const [scans, setScans] = useState<ScanResult[]>([]);
-  const [serverOnline, setServerOnline] = useState<boolean | null>(null);
+  const [products, setProducts] = useState([]);
+  const [routines, setRoutines] = useState([]);
+  const [scans, setScans] = useState([]);
+  const [serverOnline, setServerOnline] = useState(null);
 
   // Chat State
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+  const [chatMessages, setChatMessages] = useState([
     {
       id: "init-1",
       role: "assistant",
-      content: "Hello! I am **Lumina**, your AI Skincare Coach.\n\nI have reviewed your latest diagnostic profile. You can ask me anything about your current skin barrier, active ingredient pairing (e.g. *Can I mix Retinol with BHA?*), or custom product recommendations.\n\nHow can I help your skin glow today?",
+      content:
+        "Hello! I am **Lumina**, your AI Skincare Coach.\n\nI have reviewed your latest diagnostic profile. You can ask me anything about your current skin barrier, active ingredient pairing (e.g. *Can I mix Retinol with BHA?*), or custom product recommendations.\n\nHow can I help your skin glow today?",
       provider: "Lumina AI Coach",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showApiKeySettings, setShowApiKeySettings] = useState(false);
-  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const chatBottomRef = useRef(null);
 
   // Scan State
-  const [scanImage, setScanImage] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [scanImage, setScanImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [currentScan, setCurrentScan] = useState<ScanResult | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentScan, setCurrentScan] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Conflict Checker State
-  const [selectedActives, setSelectedActives] = useState<string[]>(["Retinol", "Salicylic Acid"]);
-  const [conflictReport, setConflictReport] = useState<{
-    analyzed_ingredients: string[];
-    conflicts: ConflictResult[];
-    safe: boolean;
-  } | null>(null);
+  const [selectedActives, setSelectedActives] = useState(["Retinol", "Salicylic Acid"]);
+  const [conflictReport, setConflictReport] = useState(null);
   const [checkingConflicts, setCheckingConflicts] = useState(false);
 
   // Product Filter State
@@ -185,7 +122,7 @@ export default function SkincareApp() {
   };
 
   const setFallbackData = () => {
-    const defaultProducts: Product[] = [
+    const defaultProducts = [
       {
         id: 1,
         name: "Hydrating Facial Cleanser",
@@ -274,7 +211,7 @@ export default function SkincareApp() {
       }
     ]);
 
-    const initialScan: ScanResult = {
+    const initialScan = {
       detected_skin_type: "Combination",
       overall_score: 87,
       hydration_score: 82,
@@ -298,7 +235,7 @@ export default function SkincareApp() {
   };
 
   // Toggle routine step
-  const handleToggleStep = async (routineId: number, stepId: number) => {
+  const handleToggleStep = async (routineId, stepId) => {
     setRoutines((prev) =>
       prev.map((r) => {
         if (r.id !== routineId) return r;
@@ -317,7 +254,7 @@ export default function SkincareApp() {
   };
 
   // Handle Photo selection & Scan
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -341,7 +278,7 @@ export default function SkincareApp() {
       });
 
       if (res.ok) {
-        const scanData: ScanResult = await res.json();
+        const scanData = await res.json();
         setCurrentScan(scanData);
         setScans((prev) => [scanData, ...prev]);
       } else {
@@ -349,7 +286,7 @@ export default function SkincareApp() {
       }
     } catch {
       // Fallback simulated scan
-      const simulated: ScanResult = {
+      const simulated = {
         detected_skin_type: "Combination / Sensitive",
         overall_score: Math.floor(Math.random() * 10) + 82,
         hydration_score: Math.floor(Math.random() * 15) + 75,
@@ -376,7 +313,7 @@ export default function SkincareApp() {
   };
 
   // Conflict Checker
-  const toggleActive = (active: string) => {
+  const toggleActive = (active) => {
     setSelectedActives((prev) =>
       prev.includes(active) ? prev.filter((a) => a !== active) : [...prev, active]
     );
@@ -399,7 +336,7 @@ export default function SkincareApp() {
       }
     } catch {
       // Fallback local rule check
-      const conflicts: ConflictResult[] = [];
+      const conflicts = [];
       const hasRetinol = selectedActives.includes("Retinol");
       const hasSalicylic = selectedActives.includes("Salicylic Acid");
       const hasGlycolic = selectedActives.includes("Glycolic Acid");
@@ -459,11 +396,11 @@ export default function SkincareApp() {
   }, [selectedActives]);
 
   // AI Assistant Chat Handler
-  const handleSendMessage = async (textOverride?: string) => {
+  const handleSendMessage = async (textOverride) => {
     const textToSend = textOverride || inputMessage.trim();
     if (!textToSend || chatLoading) return;
 
-    const userMsg: ChatMessage = {
+    const userMsg = {
       id: `user-${Date.now()}`,
       role: "user",
       content: textToSend,
@@ -492,7 +429,7 @@ export default function SkincareApp() {
 
       if (res.ok) {
         const data = await res.json();
-        const assistantMsg: ChatMessage = {
+        const assistantMsg = {
           id: `bot-${Date.now()}`,
           role: "assistant",
           content: data.reply,
@@ -505,7 +442,7 @@ export default function SkincareApp() {
       }
     } catch {
       // Local fallback if offline
-      const assistantMsg: ChatMessage = {
+      const assistantMsg = {
         id: `bot-${Date.now()}`,
         role: "assistant",
         content:
@@ -1476,4 +1413,3 @@ export default function SkincareApp() {
     </div>
   );
 }
-
