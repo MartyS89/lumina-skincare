@@ -493,18 +493,14 @@ export default function SkincareApp() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  serverOnline ? "bg-emerald-500 animate-pulse" : "bg-amber-400"
-                }`}
-              />
-              <span className="font-medium">
-                {serverOnline ? "Django API Online" : "Demo Mode"}
-              </span>
+          {serverOnline === false && (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span className="font-medium">Demo Mode (API offline)</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Tab Navigation */}
