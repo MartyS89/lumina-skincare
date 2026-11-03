@@ -34,6 +34,23 @@ A full-stack skincare web app, inspired by apps like Glow, built with **Python D
 
 ---
 
+## Project Structure
+
+```text
+lumina-skincare/
+├── backend/                 Django REST API
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── config/              project settings and root URLs
+│   └── api/                 models, serializers, views, URLs, seed command
+├── frontend/                Next.js (React, plain JavaScript/JSX) UI
+└── README.md
+```
+
+The two sides are fully decoupled: they only talk over HTTP/JSON, so either can be replaced or deployed independently.
+
+---
+
 ## Prerequisites
 
 * Python 3.12 or newer (developed with 3.15)
@@ -46,8 +63,7 @@ Clone the repository, then use two terminals.
 ### 1. Backend (Django API)
 
 ```bash
-cd lumina-skincare
-python3 -m venv .venv
+cd lumina-skincare/backend
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate           # creates the SQLite database
